@@ -9,7 +9,14 @@ load_dotenv()
 # Use local postgres for development if no DATABASE_URL is provided
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost/taskmanager")
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# For Supabase/Production, we often need to ensure SSL
+if "supabase.co" in SQLALCHEMY_DATABASE_URL or "pooler.supabase.com" in SQLALCHEMY_DATABASE_URL:
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        connect_args={"sslmode": "require"}
+    )
+else:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

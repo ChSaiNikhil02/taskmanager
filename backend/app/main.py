@@ -1,25 +1,37 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import auth_router, projects, tasks, users
-from .database import engine, Base
+import traceback
+import sys
 
-import os
+# ... (imports)
 
 # Create tables
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+    print("Database tables synchronized successfully.")
+except Exception as e:
+    print(f"Error during database synchronization: {e}")
 
 app = FastAPI(title="Task Manager API")
+
+# Global Exception Handler to capture 500 errors
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    error_detail = "".join(traceback.format_exception(*sys.exc_info()))
+    print(f"CRITICAL ERROR: {exc}")
+    print(error_detail)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "error": str(exc)},
+    )
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://believable-generosity-production.up.railway.app",
-        "http://localhost:5173",
-        "http://localhost:3000",
-    ],
+    allow_origins=["*"], # Use wildcard while debugging to eliminate CORS as a variable
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
