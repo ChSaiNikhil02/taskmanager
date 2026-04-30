@@ -6,7 +6,7 @@ from .. import crud, schemas, auth, database
 router = APIRouter(prefix="/users", tags=["users"])
 
 @router.get("/", response_model=List[schemas.User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db), current_user = Depends(auth.get_current_user)):
+def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db), current_user = Depends(auth.get_current_active_admin)):
     return db.query(database.models.User).offset(skip).limit(limit).all()
 
 @router.post("/invite")
