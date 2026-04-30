@@ -28,11 +28,14 @@ export default function ProjectDetail() {
   const load = async () => {
     setLoading(true);
     try {
+      console.log("Loading details for projectId:", projectId);
       const [p, t, u] = await Promise.all([
         base44.entities.Project.get(projectId),
         base44.entities.Task.filter({ project_id: projectId }),
         base44.auth.me(),
       ]);
+      console.log("Project loaded:", p);
+      console.log("Tasks loaded:", t);
       setProject(p);
       setTasks(t);
       setUser(u);
