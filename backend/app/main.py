@@ -16,15 +16,12 @@ except Exception as e:
 
 app = FastAPI(title="Task Manager API")
 
-# Global Exception Handler to capture 500 errors
+# Global Exception Handler to capture 500 errors and return them to the frontend
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    error_detail = "".join(traceback.format_exception(*sys.exc_info()))
-    print(f"CRITICAL ERROR: {exc}")
-    print(error_detail)
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal Server Error", "error": str(exc)},
+        content={"detail": "Internal Server Error", "error": str(exc), "trace": traceback.format_exc()},
     )
 
 # Configure CORS
