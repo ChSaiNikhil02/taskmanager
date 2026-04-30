@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from .routers import auth_router, projects, tasks, users
+from .database import engine, Base
 import traceback
 import sys
-
-# ... (imports)
+import os
 
 # Create tables
 try:
@@ -29,9 +30,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Use wildcard while debugging to eliminate CORS as a variable
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -44,8 +45,3 @@ app.include_router(users.router)
 @app.get("/")
 def read_root():
     return {"message": "Welcome to Task Manager API"}
-
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
