@@ -1,13 +1,22 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from .. import crud, schemas, auth, database
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/projects", tags=["projects"])
 
 @router.get("/", response_model=List[schemas.Project])
 def read_projects(db: Session = Depends(database.get_db), current_user = Depends(auth.get_current_user)):
-    return crud.get_projects(db)
+    logger.info("Fetching projects...")
+    try:
+        projects = crud.get_projects(db)
+        logger.info(f"Successfully fetched {len(projects)} projects")
+        return projects
+    except Exception as e:
+        logger.error(f"Error fetching projects: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/", response_model=schemas.Project)
 def create_project(project: schemas.ProjectCreate, db: Session = Depends(database.get_db), current_user = Depends(auth.get_current_user)):
