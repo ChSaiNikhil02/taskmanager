@@ -13,14 +13,17 @@ SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-for-jwt-tokens")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Using argon2 as it is modern and avoids bcrypt character limits/bugs
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    # Truncate to ensure compatibility
+    return pwd_context.verify(plain_password[:72], hashed_password)
 
 def get_password_hash(password):
-    return pwd_context.hash(password)
+    # Truncate to ensure compatibility
+    return pwd_context.hash(password[:72])
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
