@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function Login() {
@@ -65,10 +65,16 @@ export default function Login() {
               />
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col gap-4">
             <Button className="w-full" type="submit" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
+            <p className="text-sm text-center text-muted-foreground">
+              Don't have an account?{" "}
+              <Link to="/signup" className="text-primary hover:underline">
+                Sign up
+              </Link>
+            </p>
           </CardFooter>
         </form>
       </Card>
