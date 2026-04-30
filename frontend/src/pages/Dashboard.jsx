@@ -19,15 +19,21 @@ export default function Dashboard() {
 
   const load = async () => {
     setLoading(true);
-    const [t, p, u] = await Promise.all([
-      base44.entities.Task.list("-created_date", 100),
-      base44.entities.Project.list("-created_date", 50),
-      base44.auth.me(),
-    ]);
-    setTasks(t);
-    setProjects(p);
-    setUser(u);
-    setLoading(false);
+    try {
+      const [t, p, u] = await Promise.all([
+        base44.entities.Task.list("-created_date", 100),
+        base44.entities.Project.list("-created_date", 50),
+        base44.auth.me(),
+      ]);
+      console.log("Dashboard Data:", { t, p, u });
+      setTasks(t);
+      setProjects(p);
+      setUser(u);
+    } catch (err) {
+      console.error("Failed to load dashboard data:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
