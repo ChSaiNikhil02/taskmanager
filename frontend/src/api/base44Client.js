@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Remove trailing slash if present to avoid 307 redirects
+API_URL = API_URL.replace(/\/$/, '');
 
 const client = axios.create({
   baseURL: API_URL,
