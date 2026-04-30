@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Users, Mail, Shield, UserPlus } from "lucide-react";
+import { Users, Mail, Shield, UserPlus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -8,9 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 export default function Team() {
   const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]); // All users in DB for invite search
   const [tasks, setTasks] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,6 +22,7 @@ export default function Team() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("user");
   const [inviting, setInviting] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -30,6 +35,7 @@ export default function Team() {
     try {
       const u = await base44.entities.User.list();
       setUsers(u);
+      setAllUsers(u); // Fetching all users to populate the invite list
     } catch {
       setUsers([me]);
     }
@@ -121,13 +127,40 @@ export default function Team() {
           <form onSubmit={handleInvite} className="space-y-4">
             <div>
               <Label>Email Address</Label>
-              <Input
-                type="email"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                placeholder="colleague@company.com"
-                className="mt-1.5"
-              />
+              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="w-full justify-between mt-1.5"
+                  >
+                    {inviteEmail || "Select email..."}
+                    <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[320px] p-0">
+                  <Command>
+                    <CommandInput placeholder="Search email..." />
+                    <CommandList>
+                      <CommandEmpty>No user found.</CommandEmpty>
+                      <CommandGroup>
+                        {allUsers.map((user) => (
+                          <CommandItem
+                            key={user.email}
+                            value={user.email}
+                            onSelect={(currentValue) => {
+                              setInviteEmail(currentValue);
+                              setPopoverOpen(false);
+                            }}
+                          >
+                            {user.email}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
               <Label>Role</Label>
