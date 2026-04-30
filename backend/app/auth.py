@@ -13,19 +13,17 @@ SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-for-jwt-tokens")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# Support both argon2 (preferred) and bcrypt (legacy) to prevent login errors for existing users
+# Force argon2 only to avoid any attempts to use the problematic bcrypt backend
 pwd_context = CryptContext(
-    schemes=["argon2", "bcrypt"],
-    deprecated=["bcrypt"]
+    schemes=["argon2"],
+    deprecated=[]
 )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 def verify_password(plain_password, hashed_password):
-    # Passlib handles identifying which scheme was used for the existing hash automatically
     return pwd_context.verify(plain_password[:72], hashed_password)
 
 def get_password_hash(password):
-    # New hashes will use the first scheme in the list (argon2)
     return pwd_context.hash(password[:72])
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
