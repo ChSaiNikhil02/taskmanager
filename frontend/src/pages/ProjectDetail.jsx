@@ -27,15 +27,20 @@ export default function ProjectDetail() {
 
   const load = async () => {
     setLoading(true);
-    const [p, t, u] = await Promise.all([
-      base44.entities.Project.get(projectId),
-      base44.entities.Task.filter({ project_id: projectId }, "-created_date", 200),
-      base44.auth.me(),
-    ]);
-    setProject(p);
-    setTasks(t);
-    setUser(u);
-    setLoading(false);
+    try {
+      const [p, t, u] = await Promise.all([
+        base44.entities.Project.get(projectId),
+        base44.entities.Task.filter({ project_id: projectId }),
+        base44.auth.me(),
+      ]);
+      setProject(p);
+      setTasks(t);
+      setUser(u);
+    } catch (err) {
+      console.error("Error loading project details:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, [projectId]);
