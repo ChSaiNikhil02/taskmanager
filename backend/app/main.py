@@ -11,10 +11,13 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Task Manager API")
 
 # Configure CORS
-# In production, allow the Railway frontend URL or use "*" for simplicity in prototype
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://believable-generosity-production.up.railway.app",
+        "http://localhost:5173",
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
