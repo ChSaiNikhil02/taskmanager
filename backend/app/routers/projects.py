@@ -6,8 +6,8 @@ from .. import crud, schemas, auth, database
 router = APIRouter(prefix="/projects", tags=["projects"])
 
 @router.get("/", response_model=List[schemas.Project])
-def read_projects(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db), current_user = Depends(auth.get_current_user)):
-    return crud.get_projects(db, skip=skip, limit=limit)
+def read_projects(db: Session = Depends(database.get_db), current_user = Depends(auth.get_current_user)):
+    return crud.get_projects(db)
 
 @router.post("/", response_model=schemas.Project)
 def create_project(project: schemas.ProjectCreate, db: Session = Depends(database.get_db), current_user = Depends(auth.get_current_user)):

@@ -9,12 +9,10 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 def read_tasks(
     project_id: Optional[int] = None, 
     assigned_to: Optional[str] = None, 
-    skip: int = 0, 
-    limit: int = 200, 
     db: Session = Depends(database.get_db), 
     current_user = Depends(auth.get_current_user)
 ):
-    return crud.get_tasks(db, project_id=project_id, assigned_to=assigned_to, skip=skip, limit=limit)
+    return crud.get_tasks(db, project_id=project_id, assigned_to=assigned_to)
 
 @router.post("/", response_model=schemas.Task)
 def create_task(task: schemas.TaskCreate, db: Session = Depends(database.get_db), current_user = Depends(auth.get_current_user)):
