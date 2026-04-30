@@ -26,22 +26,20 @@ export default function Team() {
 
   const load = async () => {
     setLoading(true);
+    const [t, me] = await Promise.all([
+      base44.entities.Task.list("-created_date", 500),
+      base44.auth.me(),
+    ]);
+    setCurrentUser(me);
+    setTasks(t);
     try {
-      const [t, me] = await Promise.all([
-        base44.entities.Task.list("-created_date", 500),
-        base44.auth.me(),
-      ]);
-      setCurrentUser(me);
-      setTasks(t);
-      
       const u = await base44.entities.User.list();
       setUsers(u);
-      setAllUsers(u);
-    } catch (err) {
-      console.error("Error loading team data:", err);
-    } finally {
-      setLoading(false);
+      setAllUsers(u); // Fetching all users to populate the invite list
+    } catch {
+      setUsers([me]);
     }
+    setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
